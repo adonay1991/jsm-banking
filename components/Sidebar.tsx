@@ -23,7 +23,7 @@ const Sidebar = ({ user }: SiderbarProps) => {
 						className="size-[24px] max-xl:size-14"
 						alt="Horizon logo"
 					/>
-					<h1 className="sidebar-logo"> Horizon </h1>
+					<h1 className="sidebar-logo"> Bankito </h1>
 				</Link>
 				{sidebarLinks.map((item) => {
 					const isActive =
