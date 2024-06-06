@@ -11,7 +11,7 @@ import CustomInput from "./CustomInput";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.actions";
 const AuthForm = ({ type }: { type: string }) => {
 	const router = useRouter();
@@ -31,8 +31,6 @@ const AuthForm = ({ type }: { type: string }) => {
 	const onSubmit = async (data: z.infer<typeof formSchema>) => {
 		setIsLoading(true);
 		try {
-			// sign in with appwrite & create plaid token
-
 			if (type === "sign-up") {
 				const newUser = await signUp(data);
 				setUser(newUser);
