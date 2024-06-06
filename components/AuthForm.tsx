@@ -12,11 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.actions";
 const AuthForm = ({ type }: { type: string }) => {
 	const router = useRouter();
 	const [user, setUser] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
-
 	const formSchema = authFormSchema(type);
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -35,6 +35,7 @@ const AuthForm = ({ type }: { type: string }) => {
 
 			if (type === "sign-up") {
 				const newUser = await signUp(data);
+				setUser(newUser);
 			}
 
 			if (type === "sign-in") {
@@ -42,16 +43,13 @@ const AuthForm = ({ type }: { type: string }) => {
 					email: data.email,
 					password: data.password,
 				});
-
 				if (response) router.push("/");
 			}
-			console.log(data);
 		} catch (error) {
 			console.error(error);
 		} finally {
 			setIsLoading(false);
 		}
-		console.log(data);
 		setIsLoading(false);
 	};
 	return (
@@ -101,6 +99,12 @@ const AuthForm = ({ type }: { type: string }) => {
 											placeholder="Enter your last name"
 										/>
 									</div>
+									<CustomInput
+										control={form.control}
+										name="address1"
+										label="Address"
+										placeholder="Enter your Address"
+									/>
 									<CustomInput
 										control={form.control}
 										name="city"
@@ -171,7 +175,6 @@ const AuthForm = ({ type }: { type: string }) => {
 
 					<footer className="flex justify-center gap-1">
 						<p className="text-14 font-normal text-gray-600">
-							{" "}
 							{type === "sign-in"
 								? "Don't have an account?"
 								: "Already have an account?"}
