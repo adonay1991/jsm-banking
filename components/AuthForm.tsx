@@ -34,14 +34,14 @@ const AuthForm = ({ type }: { type: string }) => {
 		try {
 			if (type === "sign-up") {
 				const userData = {
-					firtsName: data.firstName,
-					lastName: data.lastName,
-					address1: data.address1,
-					city: data.city,
-					state: data.state,
-					postalCode: data.postalcode,
-					dateBrithday: data.dateBrithday,
-					ssn: data.ssn,
+					firstName: data.firstName!,
+					lastName: data.lastName!,
+					address1: data.address1!,
+					city: data.city!,
+					state: data.state!,
+					postalCode: data.postalcode!,
+					dateOfBirth: data.dateOfBirth!,
+					ssn: data.ssn!,
 					email: data.email,
 					password: data.password,
 				};
@@ -86,9 +86,6 @@ const AuthForm = ({ type }: { type: string }) => {
 								: "Please enter your details to get started"}
 						</p>
 					</h1>
-				</div>
-				<div className="flex flex-col -gap-4">
-					<PlaidLink user={user} variant="primary" />
 				</div>
 			</header>
 			{user ? (
@@ -144,7 +141,7 @@ const AuthForm = ({ type }: { type: string }) => {
 									<div className="flex gap-4">
 										<CustomInput
 											control={form.control}
-											name="dateBrithday"
+											name="dateOfBirth"
 											label="Date od Birth"
 											placeholder="ex: 01/01/2000"
 										/>
