@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { createAdminClient, createSessionClient } from "../server/appwrite";
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { encryptId, extractCustomerIdFromUrl, parseStringify } from "../utils";
 import type {
   CountryCode,
@@ -20,19 +20,39 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECIOTN_ID,
 } = process.env;
 
+export const getUserInfo = async ({ userId }: getUserInfoProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const user = await database.listDocuments(
+      DATABASE_ID!,
+      USER_COLLECTION_ID!,
+      [Query.equal("userId", [userId])]
+    );
+
+    return parseStringify(user.documents);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const signIn = async ({ email, password }: signInProps) => {
   try {
     const { account } = await createAdminClient();
     const response = await account.createEmailPasswordSession(email, password);
 
-    cookies().set("appwrite-session", response.secret, {
+    const session = await account.createEmailPasswordSession(email, password);
+
+    cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
       sameSite: "strict",
       secure: true,
     });
 
-    return parseStringify(response);
+    const user = await getUserInfo({ userId: session.userId });
+
+    return parseStringify(user);
   } catch (error) {
     console.log("Error", error);
   }
@@ -92,7 +112,13 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
-    const user = await account.get();
+    const result = await account.get();
+
+    console.log("loggedin actions", result.$id);
+
+    const user = await getUserInfo({ userId: result.$id });
+
+    console.log('user', user)
 
     return parseStringify(user);
   } catch (error) {
@@ -223,5 +249,37 @@ export async function exchangePublicToken({
       "An error occurred while creating exchanging public token",
       error
     );
+  }
+}
+
+export async function getBanks({ userId }: getBanksProps) {
+  try {
+    const { database } = await createAdminClient();
+
+    const banks = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECIOTN_ID!,
+      [Query.equal("userId", [userId])]
+    );
+
+    return parseStringify(banks.documents);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBank({ documentId }: getBankProps) {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECIOTN_ID!,
+      [Query.equal("$id", [documentId])]
+    );
+
+    return parseStringify(bank.documents);
+  } catch (error) {
+    console.log(error);
   }
 }
