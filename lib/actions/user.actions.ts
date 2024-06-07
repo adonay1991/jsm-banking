@@ -10,7 +10,7 @@ import type {
   ProcessorTokenCreateRequestProcessorEnum,
   Products,
 } from "plaid";
-import { PlaidClient } from "../plaid";
+import { plaidClient } from "../plaid";
 import { revalidatePath } from "next/cache";
 import { addFundingSource, createDwollaCustomer } from "./dwolla.actions";
 
@@ -30,7 +30,7 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
       [Query.equal("userId", [userId])]
     );
 
-    return parseStringify(user.documents);
+    return parseStringify(user.documents[0]);
   } catch (error) {
     console.log(error);
   }
@@ -114,14 +114,11 @@ export async function getLoggedInUser() {
     const { account } = await createSessionClient();
     const result = await account.get();
 
-    console.log("loggedin actions", result.$id);
-
     const user = await getUserInfo({ userId: result.$id });
-
-    console.log('user', user)
 
     return parseStringify(user);
   } catch (error) {
+    console.log(error);
     return null;
   }
 }
@@ -147,7 +144,7 @@ export async function createLinkToken(user: User) {
       country_codes: ["US"] as CountryCode[],
     };
 
-    const response = await PlaidClient.linkTokenCreate(tokenParams);
+    const response = await plaidClient.linkTokenCreate(tokenParams);
     return parseStringify({ linkToken: response.data.link_token });
   } catch (error) {
     console.error(error);
@@ -191,7 +188,7 @@ export async function exchangePublicToken({
 }: exchangePublicTokenProps) {
   try {
     //Exchange public token for access token and item ID
-    const response = await PlaidClient.itemPublicTokenExchange({
+    const response = await plaidClient.itemPublicTokenExchange({
       public_token: publicToken,
     });
 
@@ -200,7 +197,7 @@ export async function exchangePublicToken({
 
     // Get accounts information form Plaid using the access token
 
-    const accountsResponse = await PlaidClient.accountsGet({
+    const accountsResponse = await plaidClient.accountsGet({
       access_token: accessToken,
     });
 
@@ -213,7 +210,7 @@ export async function exchangePublicToken({
       processor: "dwolla" as ProcessorTokenCreateRequestProcessorEnum,
     };
 
-    const processorTokenResponse = await PlaidClient.processorTokenCreate(
+    const processorTokenResponse = await plaidClient.processorTokenCreate(
       request
     );
     const processorToken = processorTokenResponse.data.processor_token;
@@ -278,7 +275,7 @@ export async function getBank({ documentId }: getBankProps) {
       [Query.equal("$id", [documentId])]
     );
 
-    return parseStringify(bank.documents);
+    return parseStringify(bank.documents[0]);
   } catch (error) {
     console.log(error);
   }

@@ -7,11 +7,10 @@ import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
 	const loggedIn = await getLoggedInUser();
-
 	const accounts = await getAccounts({
 		userId: loggedIn.$id,
 	});
-	console.log(accounts);
+
 	if (!accounts) return;
 
 	const accountsData = accounts?.data;
