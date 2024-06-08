@@ -17,7 +17,7 @@ import { addFundingSource, createDwollaCustomer } from "./dwolla.actions";
 const {
   APPWRITE_DATABASE_ID: DATABASE_ID,
   APPWRITE_USER_COLLECTION_ID: USER_COLLECTION_ID,
-  APPWRITE_BANK_COLLECTION_ID: BANK_COLLECIOTN_ID,
+  APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
 export const getUserInfo = async ({ userId }: getUserInfoProps) => {
@@ -164,7 +164,7 @@ export async function createBankAccount({
 
     const bankAccount = await database.createDocument(
       DATABASE_ID!,
-      BANK_COLLECIOTN_ID!,
+      BANK_COLLECTION_ID!,
       ID.unique(),
       {
         userId,
@@ -255,7 +255,7 @@ export async function getBanks({ userId }: getBanksProps) {
 
     const banks = await database.listDocuments(
       DATABASE_ID!,
-      BANK_COLLECIOTN_ID!,
+      BANK_COLLECTION_ID!,
       [Query.equal("userId", [userId])]
     );
 
@@ -271,7 +271,7 @@ export async function getBank({ documentId }: getBankProps) {
 
     const bank = await database.listDocuments(
       DATABASE_ID!,
-      BANK_COLLECIOTN_ID!,
+      BANK_COLLECTION_ID!,
       [Query.equal("$id", [documentId])]
     );
 
@@ -280,3 +280,23 @@ export async function getBank({ documentId }: getBankProps) {
     console.log(error);
   }
 }
+
+export const getBankByAccountId = async ({
+  accountId,
+}: getBankByAccountIdProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECTION_ID!,
+      [Query.equal("accountId", [accountId])]
+    );
+
+    if (bank.total !== 1) return null;
+
+    return parseStringify(bank.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
